@@ -3,14 +3,27 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import DangerButton from "@/Components/DangerButton.vue";
 import moment from "moment";
-
+//pagination
+import { Bootstrap5Pagination } from 'laravel-vue-pagination';
+import axios from "axios";
+/*
 
 defineProps({
     events: {
         type: Array,
     },
 });
-
+*///pagination enabled props
+defineProps({
+  events: {
+    type: Array,
+    required: true, // Ensure events data is always provided
+  },
+  pagination: {
+    type: Object,
+    required: true, // Ensure pagination meta-data is always provided
+  },
+});
 const form = useForm({});
 
 const deleteEvent = (id) => {
@@ -23,6 +36,22 @@ const deleteEvent = (id) => {
 
 const formatDate = (date) => {
     return moment(date).format("MM/DD/YYYY hh:mm");
+};
+/* handle pagination */
+const fetchEvents = async (page) => {
+  try {
+    const response = await axios.get(`/api/events?page=${page}`);
+    // Update your events data with the response data (assuming data is in response.data.data)
+    events.value = response.data.data;//update events
+    pagination = response.data.meta;//update pagination
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    // Handle errors appropriately
+  }
+};
+const handlePageChange = (newPage) => {
+  // Fetch events for the new page using your API client
+  fetchEvents(newPage);
 };
 </script>
 
@@ -131,7 +160,7 @@ const formatDate = (date) => {
                                                         )
                                                     }}
                                                 </td>
-                                                <td
+                                                <td style="color:black"
                                                     class="whitespace-nowrap px-6 py-4"
                                                 >
                                                     {{
@@ -179,13 +208,21 @@ const formatDate = (date) => {
                                             </tr>
                                         </tbody>
                                     </table>
-                                   
+                                  
+                                    
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+                                        <Bootstrap5Pagination
+                                                    
+                                            :current-page="pagination.current_page"
+                                            :total-pages="pagination.last_page"
+                                            :data="events"
+                                             @pagination-change-page="handlePageChange"
+                                        />
         </div>
     </AuthenticatedLayout>
 </template>
