@@ -16,13 +16,9 @@ defineProps({
 *///pagination enabled props
 defineProps({
   events: {
-    type: Array,
-    required: true, // Ensure events data is always provided
-  },
-  pagination: {
     type: Object,
-    required: true, // Ensure pagination meta-data is always provided
-  },
+    required: true, // Ensure events data is always provided
+  }
 });
 const form = useForm({});
 
@@ -30,6 +26,7 @@ const deleteEvent = (id) => {
     if (confirm("Are you sure you want to move this to trash")) {
         form.delete(route("event.delete", { id: id }), {
             preserveScroll: true,
+            preserveState: true,
         });
     }
 };
@@ -38,6 +35,7 @@ const formatDate = (date) => {
     return moment(date).format("MM/DD/YYYY hh:mm");
 };
 /* handle pagination */
+/*
 const fetchEvents = async (page) => {
   try {
     const response = await axios.get(`/api/events?page=${page}`);
@@ -53,6 +51,7 @@ const handlePageChange = (newPage) => {
   // Fetch events for the new page using your API client
   fetchEvents(newPage);
 };
+*/
 </script>
 
 <template>
@@ -132,14 +131,14 @@ const handlePageChange = (newPage) => {
                                         </thead>
                                         <tbody>
                                             <tr
-                                                v-for="(event, index) in events"
-                                                :key="index"
+                                                v-for="(event, index) in events.data"
+                                                :key="event.id"
                                                 class="border-b border-neutral-200 dark:border-white/10"
                                             >
                                                 <td style="color:black"
                                                     class="whitespace-nowrap px-6 py-4"
                                                 >
-                                                    {{ index + 1 }}
+                                                    {{ (events.current_page -1)*events.per_page + index +1 }}
                                                 </td>
                                                 <td style="color:black"
                                                     class="whitespace-nowrap px-6 py-4"
@@ -208,7 +207,15 @@ const handlePageChange = (newPage) => {
                                             </tr>
                                         </tbody>
                                     </table>
-                                  
+                                    <div class="mt-6">
+                                        <template v-for="link in events.links" :key="link.url">
+                                            <Link v-if="link.url" :href="link.url" v-html="link.label"
+                                                class="px-2 py-1 border rounded mx-1"
+                                                :class="{ 'bg-blue-500 text-white': link.active, 'text-gray-700': !link.active }" />
+                                            <span v-else v-html="link.label"
+                                                class="px-2 py-1 text-gray-500 mx-1"></span>
+                                        </template>
+                                    </div>
                                     
                                 </div>
                             </div>
@@ -216,13 +223,17 @@ const handlePageChange = (newPage) => {
                     </div>
                 </div>
             </div>
-                                        <Bootstrap5Pagination
+                <div>
+                                     
+                  <!--  <Bootstrap5Pagination
                                                     
-                                            :current-page="pagination.current_page"
-                                            :total-pages="pagination.last_page"
-                                            :data="events"
-                                             @pagination-change-page="handlePageChange"
-                                        />
+                                                    :current-page="pagination.current_page"
+                                                    :total-pages="pagination.last_page"
+                                                    :data="events"
+                                                     @pagination-change-page="handlePageChange"
+                                                />-->
+                </div>
+                                        
         </div>
     </AuthenticatedLayout>
 </template>

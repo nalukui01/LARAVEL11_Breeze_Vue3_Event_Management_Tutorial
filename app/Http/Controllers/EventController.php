@@ -9,7 +9,23 @@ use Inertia\Inertia;
 class EventController extends Controller
 {
     public function index(){
-        $events = Event::paginate(1);
+        /*$events = Event::paginate(10);
+        return Inertia::render('EventManagement/Index', [
+            'events' => $events->items(), // Get the actual event data using items()
+            'pagination' => [
+                'current_page' => $events->currentPage(),
+                'total_pages' => $events->total(),
+                'last_page'=> $events->lastPage(),
+                'per_page' => $events->perPage(), // Add per_page count for clarity
+            ],
+        ]);*/
+        
+        return Inertia::render('EventManagement/Index',[
+            'events'=> Event::paginate(10)//gets and array of events and passes them to the index.vue as a prop
+            
+        ]);
+
+       /* $events = Event::paginate(10);
         return Inertia::render('EventManagement/Index', [
             'events' => $events->items(), // Get the actual event data using items()
             'pagination' => [
@@ -17,11 +33,6 @@ class EventController extends Controller
                 'total_pages' => $events->lastPage(),
                 'per_page' => $events->perPage(), // Add per_page count for clarity
             ],
-        ]);
-        /*
-        return Inertia::render('EventManagement/Index',[
-            'events'=> Event::get() //gets and array of events and passes them to the index.vue as a prop
-            
         ]);*/
     }
     public function store(Request $request){
