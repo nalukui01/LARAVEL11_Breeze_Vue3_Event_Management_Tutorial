@@ -8,7 +8,7 @@ use Inertia\Inertia;
 
 class EventController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
         /*$events = Event::paginate(10);
         return Inertia::render('EventManagement/Index', [
             'events' => $events->items(), // Get the actual event data using items()
@@ -18,22 +18,24 @@ class EventController extends Controller
                 'last_page'=> $events->lastPage(),
                 'per_page' => $events->perPage(), // Add per_page count for clarity
             ],
-        ]);*/
+        ]);
         
         return Inertia::render('EventManagement/Index',[
             'events'=> Event::paginate(10)//gets and array of events and passes them to the index.vue as a prop
             
-        ]);
-
-       /* $events = Event::paginate(10);
+        ]);*/#
+        //with serarch
+        $query = Event::query();    
+        if($request->has("search")){
+            $search = $request->input("search");
+            $query->where('name','like','%'.$search.'%')
+                  ->orWhere('location','like','%'.$search.'%');
+        }
+        $events= $query->paginate(10);
         return Inertia::render('EventManagement/Index', [
-            'events' => $events->items(), // Get the actual event data using items()
-            'pagination' => [
-                'current_page' => $events->currentPage(),
-                'total_pages' => $events->lastPage(),
-                'per_page' => $events->perPage(), // Add per_page count for clarity
-            ],
-        ]);*/
+            'events'=> $events,
+            'filters'=>$request->only(['search']),
+        ]);
     }
     public function store(Request $request){
         $params = $request->all();//get the form submited data

@@ -3,9 +3,9 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import { Head, Link, useForm } from "@inertiajs/vue3";
 import DangerButton from "@/Components/DangerButton.vue";
 import moment from "moment";
-//pagination
-import { Bootstrap5Pagination } from 'laravel-vue-pagination';
-import axios from "axios";
+import { ref } from 'vue';
+
+
 /*
 
 defineProps({
@@ -18,10 +18,28 @@ defineProps({
   events: {
     type: Object,
     required: true, // Ensure events data is always provided
-  }
+  },
+  filters:{//for search
+    type:Object,
+    default:()=>({}),
+  },
 });
 const form = useForm({});
+/*const searchTerm = ref(filters.search || '');
 
+const handleSearch = ()=>{
+    Inertia.get(route('events.index')){search:searchTerm.value},{
+        preserveState: true,
+        preserveScroll: true,
+    });
+};
+
+const handleSearch = () => {
+    Inertia.get(route('events.index'), { search: searchTerm.value }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
+};*/
 const deleteEvent = (id) => {
     if (confirm("Are you sure you want to move this to trash")) {
         form.delete(route("event.delete", { id: id }), {
@@ -34,24 +52,7 @@ const deleteEvent = (id) => {
 const formatDate = (date) => {
     return moment(date).format("MM/DD/YYYY hh:mm");
 };
-/* handle pagination */
-/*
-const fetchEvents = async (page) => {
-  try {
-    const response = await axios.get(`/api/events?page=${page}`);
-    // Update your events data with the response data (assuming data is in response.data.data)
-    events.value = response.data.data;//update events
-    pagination = response.data.meta;//update pagination
-  } catch (error) {
-    console.error('Error fetching events:', error);
-    // Handle errors appropriately
-  }
-};
-const handlePageChange = (newPage) => {
-  // Fetch events for the new page using your API client
-  fetchEvents(newPage);
-};
-*/
+
 </script>
 
 <template>
@@ -70,6 +71,10 @@ const handlePageChange = (newPage) => {
                     <div class="flex justify-between">
                         <div class="p-6 text-gray-900">List of events</div>
                         <div class="my-auto px-5">
+                            <form style="float:left;margin-right:100px;">
+                                <input type="search" style="margin-right:10px;" name='search' id="search" placeholder="search here" v-model="searchTerm">
+                                <button class="p-3 rounded my-auto text-white bg-green-500">Search</button>
+                            </form>
                             <Link
                                 :href="route('event.create')"
                                 class="p-3 rounded my-auto text-white bg-blue-500"
@@ -209,6 +214,16 @@ const handlePageChange = (newPage) => {
                                     </table>
                                     <div class="mt-6">
                                         <template v-for="link in events.links" :key="link.url">
+                                            <Link v-if="link.url" :href="link.url + '&search=' + searchTerm" v-html="link.label"
+                                                class="px-2 py-1 border rounded mx-1"
+                                                :class="{ 'bg-blue-500 text-white': link.active, 'text-gray-700': !link.active }" />
+                                            <span v-else v-html="link.label"
+                                                class="px-2 py-1 text-gray-500 mx-1"></span>
+                                        </template>
+                                    </div>
+                                    <!-- 
+                                    <div class="mt-6">
+                                        <template v-for="link in events.links" :key="link.url">
                                             <Link v-if="link.url" :href="link.url" v-html="link.label"
                                                 class="px-2 py-1 border rounded mx-1"
                                                 :class="{ 'bg-blue-500 text-white': link.active, 'text-gray-700': !link.active }" />
@@ -216,7 +231,7 @@ const handlePageChange = (newPage) => {
                                                 class="px-2 py-1 text-gray-500 mx-1"></span>
                                         </template>
                                     </div>
-                                    
+                                    -->
                                 </div>
                             </div>
                         </div>
